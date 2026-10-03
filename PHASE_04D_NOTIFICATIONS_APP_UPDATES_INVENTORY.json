@@ -1,0 +1,136 @@
+{
+  "phase": "PHASE_04D",
+  "name": "Notifications & App Updates Integration",
+  "status": "COMPLETED",
+  "backend_mode": "FIREBASE_ONLY",
+  "trusted_backend": false,
+  "fcm_server_authoritative": false,
+  "firestore_collections": {
+    "notifications": {
+      "path": "/notifications/{notificationId}",
+      "purpose": "Canonical system announcements and user-targeted notifications",
+      "access": {
+        "read": "isAuthenticated()",
+        "write": "isAdmin()"
+      },
+      "supported_fields": [
+        "title",
+        "body",
+        "message",
+        "timestamp",
+        "createdAt",
+        "imageUrl",
+        "image_url",
+        "type",
+        "target",
+        "targetUid",
+        "isActive",
+        "expiresAt",
+        "event",
+        "isAnime"
+      ]
+    },
+    "app_updates": {
+      "path": "/app_updates/{updateId}",
+      "purpose": "Canonical OTA application updates registry",
+      "access": {
+        "read": "isAuthenticated()",
+        "write": "isAdmin()"
+      },
+      "supported_fields": [
+        "versionCode",
+        "versionName",
+        "releaseNotes",
+        "updateUrl",
+        "isMandatory",
+        "minVersionCode",
+        "isActive",
+        "publishedAt"
+      ]
+    },
+    "user_notification_settings": {
+      "path": "/users/{userId}/settings/notifications",
+      "purpose": "User notification categories and subscription toggles",
+      "access": {
+        "read": "isOwner(userId) || isAdmin()",
+        "write": "(isOwner(userId) || isAdmin()) with key restrictions"
+      },
+      "supported_fields": [
+        "notificationsEnabled",
+        "announcementsEnabled",
+        "appUpdatesEnabled",
+        "maintenanceEnabled",
+        "newMoviesEnabled",
+        "newTvSeriesEnabled",
+        "newAnimeEnabled",
+        "newTvEpisodesEnabled",
+        "newAnimeEpisodesEnabled",
+        "newTvSeasonsEnabled",
+        "newAnimeSeasonsEnabled"
+      ]
+    },
+    "user_fcm_tokens": {
+      "path": "/users/{userId}/fcmTokens/{installationId}",
+      "purpose": "Device-level FCM tokens for Push delivery",
+      "access": {
+        "read": "isOwner(userId) || isAdmin()",
+        "create": "isOwner(userId) || isAdmin() (strict validation)",
+        "update": "isOwner(userId) || isAdmin() (owner-scoped)",
+        "delete": "isOwner(userId) || isAdmin()"
+      },
+      "supported_fields": [
+        "token",
+        "installationId",
+        "platform",
+        "deviceModel",
+        "osVersion",
+        "appVersion",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "lastSeenAt",
+        "deactivationReason",
+        "deactivatedAt"
+      ]
+    }
+  },
+  "local_storage": {
+    "room_database": {
+      "entity": "com.example.data.model.NotificationItem",
+      "dao": "com.example.data.db.NotificationDao",
+      "table": "notifications",
+      "primary_key": "id"
+    },
+    "datastore": {
+      "file": "user_prefs",
+      "keys": [
+        "notif_enabled",
+        "notif_announcements",
+        "notif_app_updates",
+        "notif_maintenance",
+        "notif_new_movies",
+        "notif_new_tv_series",
+        "notif_new_anime",
+        "notif_new_tv_episodes",
+        "notif_new_anime_episodes",
+        "notif_new_tv_seasons",
+        "notif_new_anime_seasons",
+        "fcm_installation_id",
+        "fcm_cached_token"
+      ]
+    }
+  },
+  "architecture_pipeline": {
+    "notifications_flow": "Firestore (/notifications) -> NotificationRepository -> Room (notifications table) -> NotificationsViewModel -> NotificationsScreen",
+    "badge_flow": "Room (NotificationDao.getUnreadCount) -> NotificationsViewModel.unreadCount -> CineStreamHeader (badge UI)",
+    "updates_flow": "Firestore (/app_updates + fallback /config/app) -> AppUpdateManager -> AppUpdateDialog (mandatory blocking in SplashScreen, optional prompt in MainActivity / AboutScreen)"
+  },
+  "security_audit": {
+    "cross_user_writes": "PREVENTED",
+    "points_mutation": "NONE",
+    "subscription_mutation": "NONE",
+    "quality_coupling": "NONE",
+    "unauthorized_update_activation": "PREVENTED"
+  },
+  "verdict": "PASS WITH LIMITATIONS"
+}

@@ -1,0 +1,15 @@
+name = "cinestream-trusted-backend"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+
+# Observability and Logs
+[observability]
+enabled = true
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+MAX_POINT_BALANCE = 1000000
+FIRESTORE_PROJECT_ID = "ai-studio-applet-webapp-e138b"
+AUDIT_LOG_COLLECTION = "auditLogs"
+IDEMPOTENCY_COLLECTION = "idempotency_records"

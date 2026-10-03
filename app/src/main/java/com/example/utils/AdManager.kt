@@ -1,0 +1,98 @@
+package com.example.utils
+
+import android.content.Context
+import com.example.data.repository.UserSecurityManager
+import com.startapp.sdk.adsbase.StartAppAd
+import com.startapp.sdk.adsbase.adlisteners.AdEventListener
+import com.startapp.sdk.adsbase.adlisteners.AdDisplayListener
+import com.startapp.sdk.adsbase.Ad
+
+/**
+ * PHASE SUBSCRIPTION-POINTS-03B: AD MANAGER INTEGRATION
+ *
+ * Entitlement Rule:
+ * Ad suppression is strictly driven by `UserSecurityManager.isAdFree()`.
+ * Active PRO_LITE -> Ads suppressed.
+ * Active PRO -> Ads suppressed.
+ * FREE -> Ads shown according to forced ads config.
+ * Expired -> Ads resume.
+ *
+ * Ad decisions NEVER inspect video quality, downloadLimit, or allowedQuality.
+ */
+object AdManager {
+    private var startAppAd: StartAppAd? = null
+
+    @Volatile
+    var isShowingAd: Boolean = false
+        private set
+
+    @Volatile
+    var isInsideDetailsScreen: Boolean = false
+        private set
+
+    fun enterDetailsScreen() {
+        isInsideDetailsScreen = true
+    }
+
+    fun exitDetailsScreen() {
+        isInsideDetailsScreen = false
+    }
+
+    fun preload(context: Context) {
+        if (UserSecurityManager.isAdFree() || UserSecurityManager.getForcedAdsRequired() == 0) {
+            return
+        }
+        if (startAppAd == null) {
+            startAppAd = StartAppAd(context.applicationContext)
+        }
+        if (startAppAd?.isReady != true) {
+            startAppAd?.loadAd()
+        }
+    }
+
+    fun showInterstitial(context: Context, onDismissed: (() -> Unit)? = null) {
+        if (UserSecurityManager.isAdFree() || UserSecurityManager.getForcedAdsRequired() == 0) {
+            onDismissed?.invoke()
+            return
+        }
+
+        if (startAppAd == null) {
+            startAppAd = StartAppAd(context.applicationContext)
+        }
+
+        val displayListener = object : AdDisplayListener {
+            override fun adHidden(ad: Ad?) {
+                isShowingAd = false
+                startAppAd?.loadAd()
+                onDismissed?.invoke()
+            }
+
+            override fun adDisplayed(ad: Ad?) {
+                isShowingAd = true
+            }
+
+            override fun adClicked(ad: Ad?) {
+            }
+
+            override fun adNotDisplayed(ad: Ad?) {
+                isShowingAd = false
+                startAppAd?.loadAd()
+                onDismissed?.invoke()
+            }
+        }
+
+        if (startAppAd?.isReady == true) {
+            isShowingAd = true
+            val shown = startAppAd?.showAd(displayListener) ?: false
+            if (!shown) {
+                isShowingAd = false
+                startAppAd?.loadAd()
+                onDismissed?.invoke()
+            }
+        } else {
+            // Ad is not ready yet, preload for future actions so we don't unexpectedly hijack the user later
+            startAppAd?.loadAd()
+            onDismissed?.invoke()
+        }
+    }
+}

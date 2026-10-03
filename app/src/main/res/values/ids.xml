@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="tag_url" type="id" />
+    <item name="tag_server" type="id" />
+    <item name="tag_server_id" type="id" />
+</resources>

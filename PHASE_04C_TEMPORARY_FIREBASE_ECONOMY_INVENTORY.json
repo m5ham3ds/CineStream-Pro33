@@ -1,0 +1,108 @@
+{
+  "phase": "PHASE_04C",
+  "executionMode": "TEMPORARY_NON_TRUSTED_FIREBASE",
+  "authorityClassification": "CLIENT_EXECUTION_TEMPORARY",
+  "canonicalContract": {
+    "tiers": [
+      "FREE",
+      "PRO_LITE",
+      "PRO"
+    ],
+    "publicSkus": {
+      "pro_lite_1d": {
+        "tier": "PRO_LITE",
+        "durationDays": 1,
+        "canonicalFallbackCost": 50
+      },
+      "pro_lite_7d": {
+        "tier": "PRO_LITE",
+        "durationDays": 7,
+        "canonicalFallbackCost": 250
+      },
+      "pro_lite_10d": {
+        "tier": "PRO_LITE",
+        "durationDays": 10,
+        "canonicalFallbackCost": 350
+      },
+      "pro_30d": {
+        "tier": "PRO",
+        "durationDays": 30,
+        "canonicalFallbackCost": 1000
+      }
+    },
+    "forbiddenFallbacks": [320, 800],
+    "dailyLoginLadder": [10, 15, 20, 25, 30, 40, 50],
+    "rewardedAdConfig": {
+      "defaultPoints": 15,
+      "dailyCap": 5,
+      "cooldownSeconds": 300
+    },
+    "featureFlags": [
+      "subscriptions",
+      "points",
+      "dailyLogin",
+      "rewardedAds",
+      "tasks",
+      "leaderboard"
+    ]
+  },
+  "firestorePaths": {
+    "userDocument": "/users/{uid}",
+    "userPointLedger": "/users/{uid}/point_transactions/{txId}",
+    "userTaskClaims": "/users/{uid}/task_claims/{taskId}",
+    "userFcmTokens": "/users/{uid}/fcmTokens/{installationId}",
+    "userSettings": "/users/{uid}/settings/notifications",
+    "rewardTasksCatalog": "/reward_tasks/{taskId}",
+    "economyConfig": "/config/economy",
+    "featuresConfig": "/config/features",
+    "currentLeaderboard": "/leaderboard/weekly_current",
+    "leaderboardHistory": "/leaderboard_history/{cycleId}",
+    "proUpgradeRequests": "/pro_requests/{requestId}",
+    "notifications": "/notifications/{notificationId}"
+  },
+  "usersDocumentFields": {
+    "canonicalPoints": [
+      "pointsBalance",
+      "totalPointsEarned",
+      "totalPointsSpent"
+    ],
+    "canonicalSubscription": [
+      "subscriptionTier",
+      "planId",
+      "durationDays",
+      "subscriptionStatus",
+      "subscriptionSource",
+      "subscriptionReferenceId",
+      "subscriptionStartedAt",
+      "subscriptionExpiresAt"
+    ],
+    "legacyMirrors": [
+      "isPremium",
+      "isPro",
+      "plan",
+      "proPlan",
+      "proExpiresAt"
+    ],
+    "dailyTracking": [
+      "dailyStreak",
+      "lastDailyLoginDate",
+      "lastDailyLoginTimestamp"
+    ],
+    "adTracking": [
+      "rewardedAdsWatchedToday",
+      "lastRewardedAdWatchedAt",
+      "lastRewardedAdWatchedDate"
+    ]
+  },
+  "transactionTypes": [
+    "DAILY_LOGIN",
+    "REWARDED_AD",
+    "TASK_REWARD",
+    "GAME_REWARD",
+    "LEADERBOARD_REWARD",
+    "SUBSCRIPTION_REDEMPTION",
+    "ADMIN_GRANT",
+    "ADMIN_ADJUSTMENT",
+    "REVERSAL"
+  ]
+}
